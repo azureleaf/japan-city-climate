@@ -1,5 +1,7 @@
 # user-defined
 .vscode
+merged.csv
+merged.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
