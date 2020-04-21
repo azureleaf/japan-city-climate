@@ -7,7 +7,6 @@ src_csv_paths = [
     os.path.join('climate-data', 'climate_temp_1.csv'),
     os.path.join('climate-data', 'climate_temp_2.csv'),
     os.path.join('climate-data', 'climate_temp_3.csv'),
-    os.path.join('climate-data', 'climate_temp_4.csv'),
 ]
 
 col_ja_en_maps = {
@@ -19,6 +18,8 @@ col_ja_en_maps = {
     "日最高気温0℃未満日数(日)": "midwinter_days",
     "日最低気温25℃以上日数(日)": "hot_nights",
     "平均気温(℃)": "avg_temp",
+    "日最高気温の平均(℃)": "daily_high_avg_temp",
+    "日最低気温の平均(℃)": "daily_low_avg_temp",
     "降水量の合計(mm)": "ppt_mm",
     "日照時間(時間)": "sunlight_hrs",
     "降雪量合計(cm)": "snowfall_cm",
@@ -44,6 +45,8 @@ def csv_to_df(csv_path):
         df.iloc[0] is the raw of city names
         df.iloc[1] is the raw of data types: e.g. 年月, 降水量, 気温...
     '''
+    print("Processing the CSV:", csv_path)
+
     df = pd.read_csv(csv_path, encoding="shift_jis", skiprows=2)
 
     # Drop columns with no climate data
@@ -62,7 +65,7 @@ def csv_to_df(csv_path):
                     if city_ja in df.columns[col_index]:
                         new_columns.append((city_en, col_en))
                         continue
-            continue
+                continue
 
     # Give multi-index of (city name, climate data type) for every column
     df.columns = pd.MultiIndex.from_tuples(new_columns)
@@ -96,4 +99,5 @@ df.to_csv(
     "./merged.csv",
     mode="w",
     index=False,
-    header=True)
+    header=True,
+)
