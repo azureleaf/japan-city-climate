@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-import sys
 
 
 src_csv_paths = [
@@ -40,18 +39,13 @@ city_ja_en_maps = {
 drop_column_keywords = ["均質番号", "現象なし情報", "品質情報"]
 
 
-def csv_to_df(csv_path, index_format="single"):
+def csv_to_df(csv_path, has_multi_index=True):
     '''
     Convert CSV to formatted dataframe.
     Note that:
         df.iloc[0] is the raw of city names
         df.iloc[1] is the raw of data types: e.g. 年月, 降水量, 気温...
     '''
-
-    # Inspect the arg
-    if not (index_format in [None, "single", "multi"]):
-        print("Error: Unknown index format:", index_format)
-        sys.exit(1)
 
     print("Processing the CSV:", csv_path)
 
@@ -65,26 +59,26 @@ def csv_to_df(csv_path, index_format="single"):
     df.drop(cols_to_drop, axis='columns', inplace=True)
 
     # Generate the new column labels; e.g. (sendai, avg_temp)
-    if index_format == "multi":
+    if has_multi_index:
         new_columns = [("month", "month")]
-    elif index_format == "single":
+    elif not has_multi_index:
         new_columns = ["month"]
     for col_index, field_name in enumerate(df.iloc[0]):
         for col_ja, col_en in col_ja_en_maps.items():
             if field_name == col_ja:
                 for city_ja, city_en in city_ja_en_maps.items():
                     if city_ja in df.columns[col_index]:
-                        if index_format == "multi":
+                        if has_multi_index:
                             new_columns.append((city_en, col_en))
-                        elif index_format == "single":
+                        elif not has_multi_index:
                             new_columns.append(f"{city_en}-{col_en}")
                         continue
                 continue
 
     # Give multi-index of (city name, climate data type) for every column
-    if index_format == "multi":
+    if has_multi_index:
         df.columns = pd.MultiIndex.from_tuples(new_columns)
-    elif index_format == "single":
+    elif not has_multi_index:
         df.columns = new_columns
 
     # Drop unnecessary rows
@@ -93,20 +87,20 @@ def csv_to_df(csv_path, index_format="single"):
     return df
 
 
-def integrate_data(index_format):
+def integrate_data(has_multi_index=True):
     '''Integrate all the source CSVs and return a dataframe'''
 
     # Create the 1st df as the base
-    df = csv_to_df(src_csv_paths[0], index_format)
+    df = csv_to_df(src_csv_paths[0], has_multi_index)
 
     # Using iterator to skip the 1st CSV
     iter_csvs = iter(src_csv_paths)
     next(iter_csvs)
     for src_csv_path in iter_csvs:
-        df_next = csv_to_df(src_csv_path, index_format)
-        if index_format == "multi":
+        df_next = csv_to_df(src_csv_path, has_multi_index)
+        if has_multi_index:
             join_on = [("month", "month")]
-        elif index_format == "single":
+        elif not has_multi_index:
             join_on = "month"
         df = pd.merge(left=df,
                       right=df_next,
@@ -116,12 +110,15 @@ def integrate_data(index_format):
 
 
 def wrapper():
-    # Argument of integrate_data() function
-    # Set "multi" when you want to use multi-index for DF
+    # Set True when you want to use multi-index for DF
+    #   ("sapporo", "avg_temp")
     #   This will be useful for following dataframe manipulation
-    # Set "single" when you want to use single hyphenated index for DF
+    # Set False when you want to use single hyphenated index for DF
+    #   "sapporo-avg_temp"
     #   This will be useful to use the result outside Python
-    df = integrate_data("multi")
+    has_multi_index = False
+
+    df = integrate_data(has_multi_index)
 
     df.to_csv(
         "./merged.csv",
