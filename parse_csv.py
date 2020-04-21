@@ -58,11 +58,7 @@ def csv_to_df(csv_path, has_multi_index=True):
             cols_to_drop.append(df.columns[col_i])
     df.drop(cols_to_drop, axis='columns', inplace=True)
 
-    # Generate the new column labels; e.g. (sendai, avg_temp)
-    if has_multi_index:
-        new_columns = [("month", "month")]
-    elif not has_multi_index:
-        new_columns = ["month"]
+    new_columns = [("month", "month")] if has_multi_index else ["month"]
     for col_index, field_name in enumerate(df.iloc[0]):
         for col_ja, col_en in col_ja_en_maps.items():
             if field_name == col_ja:
@@ -98,10 +94,7 @@ def integrate_data(has_multi_index=True):
     next(iter_csvs)
     for src_csv_path in iter_csvs:
         df_next = csv_to_df(src_csv_path, has_multi_index)
-        if has_multi_index:
-            join_on = [("month", "month")]
-        elif not has_multi_index:
-            join_on = "month"
+        join_on = [("month", "month")] if has_multi_index else "month"
         df = pd.merge(left=df,
                       right=df_next,
                       sort=False,
