@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 
-src_csvs = [
+src_csv_paths = [
     os.path.join('climate-data', 'climate_sun_rain_snow.csv'),
     os.path.join('climate-data', 'climate_temp_1.csv'),
     os.path.join('climate-data', 'climate_temp_2.csv'),
@@ -38,8 +38,22 @@ drop_column_keywords = ["均質番号", "現象なし情報", "品質情報"]
 
 
 def csv_to_df(csv_path):
+    '''
+    Convert CSV to formatted dataframe.
+    Note that:
+        df.iloc[0] is the raw of city names
+        df.iloc[1] is the raw of data types: e.g. 年月, 降水量, 気温...
+    '''
     df = pd.read_csv(csv_path, encoding="shift_jis", skiprows=2)
 
+    # Drop columns with no climate data
+    cols_to_drop = []
+    for col_i, field in enumerate(df.iloc[1]):
+        if field in drop_column_keywords:
+            cols_to_drop.append(df.columns[col_i])
+    df.drop(cols_to_drop, axis='columns', inplace=True)
+
+    # Generate the new column labels; e.g. (sendai, avg_temp)
     new_columns = [("month", "month")]
     for col_index, field_name in enumerate(df.iloc[0]):
         for col_ja, col_en in col_ja_en_maps.items():
@@ -50,10 +64,27 @@ def csv_to_df(csv_path):
                         continue
             continue
 
+    # Give multi-index of (city name, climate data type) for every column
     df.columns = pd.MultiIndex.from_tuples(new_columns)
-    df.drop(0, inplace=True)
+
+    # Drop unnecessary rows
+    df.drop([0, 1], inplace=True)
+
     return df
 
 
-df = csv_to_df(src_csvs[0])
-print(df.head(10))
+def integrate_data():
+    '''Integrate all the source CSVs and return a dataframe'''
+    dfs = []
+    for src_csv_path in src_csv_paths:
+        df = csv_to_df(src_csv_path)
+        dfs.append(df)
+    return pd.concat(dfs, axis=1, sort=False)
+
+
+df = integrate_data()
+df.to_csv(
+    "./merged.csv",
+    mode="w",
+    index=False,
+    header=True)
