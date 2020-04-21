@@ -75,11 +75,20 @@ def csv_to_df(csv_path):
 
 def integrate_data():
     '''Integrate all the source CSVs and return a dataframe'''
-    dfs = []
-    for src_csv_path in src_csv_paths:
-        df = csv_to_df(src_csv_path)
-        dfs.append(df)
-    return pd.concat(dfs, axis=1, sort=False)
+
+    # Create the 1st df as the base
+    df = csv_to_df(src_csv_paths[0])
+
+    # Using iterator to skip the 1st CSV
+    iter_csvs = iter(src_csv_paths)
+    next(iter_csvs)
+    for src_csv_path in iter_csvs:
+        df_next = csv_to_df(src_csv_path)
+        df = pd.merge(left=df,
+                      right=df_next,
+                      sort=False,
+                      on=[("month", "month")])
+    return df
 
 
 df = integrate_data()
