@@ -110,15 +110,25 @@ def wrapper():
     #   "sapporo-avg_temp"
     #   This will be useful to use the result outside Python
     has_multi_index = False
+    save_as_json = True
 
     df = integrate_data(has_multi_index)
 
-    df.to_csv(
-        "./merged.csv",
-        mode="w",
-        index=False,
-        header=True,
-    )
+    if not save_as_json:
+        df.to_csv(
+            "./merged.csv",
+            mode="w",
+            index=False,
+            header=True,
+        )
+
+    if save_as_json:
+        df.to_json(
+            "./merged.json",
+            orient="split",
+            index=False,
+            force_ascii=True  # Output Japanese text as it is
+        )
 
 
 if __name__ == "__main__":
