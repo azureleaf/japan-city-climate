@@ -8,14 +8,50 @@ stats.columns.forEach((column, index) => {
   fields[column] = index;
 });
 
-const start = "2010-4";
-const end = "2020-3";
+const monthRangeStart = "2015-4";
+const monthRangeEnd = "2020-3";
+
+const COLORS = {
+  sapporo: "rgba(148, 0, 255, 1)",
+  sendai: "rgba(0, 0, 255, 1)",
+  tokyo: "rgba(0, 191, 255, 1)",
+  nagoya: "rgba(0, 255, 0, 1)",
+  osaka: "rgba(255, 255, 0, 1)",
+  hiroshima: "rgba(255, 165, 0, 1)",
+  fukuoka: "rgba(255, 0, 0, 1)",
+};
+
+const DTYPES = {
+  month: "年月",
+  boiling_days: "猛暑日",
+  midsummer_days: "真夏日",
+  summer_days: "夏日",
+  winter_days: "冬日",
+  midwinter_days: "真冬日",
+  hot_nights: "熱帯夜",
+  avg_temp: "平均気温(℃)",
+  daily_high_avg_temp: "日最高気温の平均(℃)",
+  daily_low_avg_temp: "日最低気温の平均(℃)",
+  ppt_mm: "降水量の合計(mm)",
+  sunlight_hrs: "日照時間(時間)",
+  snowfall_cm: "降雪量合計(cm)",
+};
+
+const CITY_NAMES = {
+  sapporo: "札幌",
+  sendai: "仙台",
+  tokyo: "東京",
+  nagoya: "名古屋",
+  osaka: "大阪",
+  hiroshima: "広島",
+  fukuoka: "福岡",
+};
 
 // Get the values of the specified column
 const getColumn = (
   columnName,
-  startMonth = start,
-  endMonth = end
+  startMonth = monthRangeStart,
+  endMonth = monthRangeEnd
 ) => {
   let values = [];
   stats.data.map((row) => {
@@ -44,26 +80,23 @@ var ctx = document.getElementById("chartSummer").getContext("2d");
 ctx.canvas.width = 1500;
 ctx.canvas.height = 600;
 
+datasetsAvgTemp = [];
+for (let [cityNameEn, cityNameJa] of Object.entries(CITY_NAMES)) {
+  datasetsAvgTemp.push({
+    label: cityNameJa,
+    backgroundColor: COLORS[cityNameEn],
+    borderColor: COLORS[cityNameEn],
+    data: getColumn(cityNameEn + "-avg_temp"),
+    fill: false,
+  });
+}
+console.log(datasetsAvgTemp);
+
 var config = {
   type: "line",
   data: {
     labels: getColumn("month"),
-    datasets: [
-      {
-        label: "Sendai",
-        backgroundColor: "rgba(255, 0, 0, 1)",
-        borderColor: "rgba(128, 0, 0, 1)",
-        data: getColumn("sendai-avg_temp"),
-        fill: false,
-      },
-      {
-        label: "Fukuoka",
-        backgroundColor: "rgba(0, 0, 255, 1)",
-        borderColor: "rgba(0, 0, 128, 1)",
-        data: getColumn("fukuoka-avg_temp"),
-        fill: false,
-      },
-    ],
+    datasets: datasetsAvgTemp,
   },
   options: {
     responsive: true,
