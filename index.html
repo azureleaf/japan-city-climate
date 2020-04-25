@@ -27,7 +27,8 @@
   />
   <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script> -->
-  <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+  <!-- <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script> -->
   <script src="merged.js"></script>
   <title>日本大都市気候比較</title>
 </head>
@@ -35,5 +36,10 @@
   <div id="app" style="font-family: 'Noto Serif JP', serif;">
     <h1 style="font-size: 150%;">東名阪札仙広福の気候比較</h1>
   </div>
+  <div>
+    <canvas id="chartSummer"></canvas>
+  </div>
+  <script src="./Chart.min.js"></script>
+  <script src="./moment.min.js"></script>
   <script src="./vis-chart.js"></script>
 </body>
