@@ -22,7 +22,6 @@ const COLORS = {
 };
 
 const DTYPES = {
-  month: "年月",
   boiling_days: "猛暑日",
   midsummer_days: "真夏日",
   summer_days: "夏日",
@@ -80,29 +79,35 @@ var ctx = document.getElementById("chartSummer").getContext("2d");
 ctx.canvas.width = 1500;
 ctx.canvas.height = 600;
 
-datasetsAvgTemp = [];
-for (let [cityNameEn, cityNameJa] of Object.entries(CITY_NAMES)) {
-  datasetsAvgTemp.push({
-    label: cityNameJa,
-    backgroundColor: COLORS[cityNameEn],
-    borderColor: COLORS[cityNameEn],
-    data: getColumn(cityNameEn + "-avg_temp"),
-    fill: false,
+datasetsAll = [];
+for (let [dtypeEn, dtypeJa] of Object.entries(DTYPES)) {
+  let datasetsSingle = []; // datasets for a data type; e.g. avg_temp
+  for (let [cityNameEn, cityNameJa] of Object.entries(CITY_NAMES)) {
+    datasetsSingle.push({
+      label: cityNameJa,
+      backgroundColor: COLORS[cityNameEn],
+      borderColor: COLORS[cityNameEn],
+      data: getColumn(cityNameEn + "-" + dtypeEn), // e.g. sendai-avg_temp
+      fill: false,
+    });
+  }
+  datasetsAll.push({
+    label: dtypeJa,
+    datasets: datasetsSingle,
   });
 }
-console.log(datasetsAvgTemp);
 
 var config = {
   type: "line",
   data: {
     labels: getColumn("month"),
-    datasets: datasetsAvgTemp,
+    datasets: datasetsAll[0].datasets,
   },
   options: {
     responsive: true,
     title: {
       display: true,
-      text: "七都市の月別平均気温",
+      text: "七都市の" + datasetsAll[0].label,
     },
     tooltips: {
       mode: "index",
@@ -127,7 +132,7 @@ var config = {
           display: true,
           scaleLabel: {
             display: true,
-            labelString: "平均気温",
+            labelString: datasetsAll[0].label,
           },
         },
       ],
