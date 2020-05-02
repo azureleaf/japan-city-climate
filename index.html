@@ -33,7 +33,10 @@
         <v-container>
           <v-app-bar color="red darken-4" app dark>
             <v-toolbar-title class="title"
-              >東名阪札仙広福の気候比較</v-toolbar-title
+              >東名阪札仙広福の気候を比べよう
+              <a href="https://github.com/azureleaf/japan-city-climate"
+                >azureleaf@GitHub</a
+              ></v-toolbar-title
             >
           </v-app-bar>
           <v-card>
@@ -43,25 +46,43 @@
                   <v-select
                     :items="dataTypes"
                     v-model="typeSelected"
-                    label="気候指標の種類"
-                    @change="rerender()"
+                    label="気候指標"
                   ></v-select>
                 </v-col>
                 <v-col>
                   <v-select
-                    :items="months"
-                    v-model="monthStart"
-                    label="表示期間の最初"
-                    @change="rerender()"
+                    :items="years"
+                    v-model="start.year"
+                    label="開始年"
+                    @change="updateMonthsList()"
                   ></v-select>
                 </v-col>
                 <v-col>
                   <v-select
-                    :items="months"
-                    v-model="monthEnd"
-                    label="表示期間の最後"
-                    @change="rerender()"
+                    :items="monthsList.start"
+                    v-model="start.month"
+                    label="開始月"
                   ></v-select>
+                </v-col>
+                <v-col>
+                  <v-select
+                    :items="years"
+                    v-model="end.year"
+                    label="最終年"
+                    @change="updateMonthsList()"
+                  ></v-select>
+                </v-col>
+                <v-col>
+                  <v-select
+                    :items="monthsList.end"
+                    v-model="end.month"
+                    label="最終月"
+                  ></v-select>
+                </v-col>
+                <v-col>
+                  <v-btn color="primary" large @click="getChart()"
+                    >表示更新</v-btn
+                  >
                 </v-col>
               </v-row>
               <canvas id="chartArea"></canvas>
@@ -70,7 +91,6 @@
         </v-container>
       </v-content>
     </v-app>
-
   </div>
   <!-- <script src="./js/vue.min.js"></script> -->
   <script src="./js/Chart.min.js"></script>
@@ -82,10 +102,11 @@
       data() {
         return {
           dataTypes: Object.values(DTYPES),
-          months: ALL_MONTHS,
-          monthStart: "2015-4", 
-          monthEnd: "2020-3",
-          typeSelected: "夏日", // Set initial type here
+          years: Object.keys(MONTHS),
+          monthsList: { start: [], end: [] }, // [1, 2...12] at most
+          start: { year: "2015", month: "4" },
+          end: { year: "2020", month: "3" },
+          typeSelected: "夏日",
         };
       },
       computed: {
@@ -95,13 +116,25 @@
         },
       },
       methods: {
-        rerender() {
-          console.log(this.typeSelectedEn);
-          render(this.typeSelectedEn, this.monthStart, this.monthEnd);
+        // Render new chart with the params supplied
+        getChart() {
+          render(
+            this.typeSelectedEn,
+            this.start.year + "-" + this.start.month,
+            this.end.year + "-" + this.end.month
+          );
+        },
+        updateMonthsList() {
+          // Update the list of months (1-12 at most) for the year
+          // Some years don't have whole 12 months,
+          // therefore we need to check original data
+          this.monthsList.start = MONTHS[this.start.year];
+          this.monthsList.end = MONTHS[this.end.year];
         },
       },
       mounted() {
-        render(this.typeSelectedEn, this.monthStart, this.monthEnd);
+        this.updateMonthsList();
+        this.getChart();
       },
     });
   </script>

@@ -10,8 +10,11 @@ stats.columns.forEach((column, index) => {
 
 let chart;
 
-const ALL_MONTHS = stats.data.map((row) => {
-  return row[fields.month];
+let MONTHS = {};
+stats.data.forEach((row) => {
+  [year, month] = row[fields.month].split("-");
+  MONTHS[year] = MONTHS[year] || [];
+  MONTHS[year].push(month);
 });
 
 const COLORS = {
