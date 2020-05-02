@@ -8,17 +8,14 @@ stats.columns.forEach((column, index) => {
   fields[column] = index;
 });
 
-const monthRangeStart = "2015-4";
-const monthRangeEnd = "2020-3";
-
 const COLORS = {
   sapporo: "rgba(148, 0, 255, 1)",
   sendai: "rgba(0, 0, 255, 1)",
   tokyo: "rgba(0, 191, 255, 1)",
   nagoya: "rgba(0, 255, 0, 1)",
-  osaka: "rgba(255, 255, 0, 1)",
-  hiroshima: "rgba(255, 165, 0, 1)",
-  fukuoka: "rgba(255, 0, 0, 1)",
+  osaka: "rgba(255, 165, 0, 1)",
+  hiroshima: "rgba(255, 0, 0, 1)",
+  fukuoka: "rgba(255, 0, 255, 1)",
 };
 
 const DTYPES = {
@@ -47,11 +44,7 @@ const CITY_NAMES = {
 };
 
 // Get the values of the specified column
-const getColumn = (
-  columnName,
-  startMonth = monthRangeStart,
-  endMonth = monthRangeEnd
-) => {
+const getColumn = (columnName, startMonth, endMonth) => {
   let values = [];
   stats.data.map((row) => {
     if (
@@ -74,72 +67,89 @@ const isLaterOrEqual = (newMonth, baseMonth) => {
   );
 };
 
-// Get HTML DOM
-var ctx = document.getElementById("chartSummer").getContext("2d");
-ctx.canvas.width = 1500;
-ctx.canvas.height = 600;
+const getDatasetsAll = (start, end) => {
+  datasetsAll = {};
+  for (let [dtypeEn, dtypeJa] of Object.entries(DTYPES)) {
+    // datasets for a data type; e.g. avg_temp
+    // This array includes data of all the cities for the data type
+    let datasetsSingle = [];
 
-datasetsAll = [];
-for (let [dtypeEn, dtypeJa] of Object.entries(DTYPES)) {
-  let datasetsSingle = []; // datasets for a data type; e.g. avg_temp
-  for (let [cityNameEn, cityNameJa] of Object.entries(CITY_NAMES)) {
-    datasetsSingle.push({
-      label: cityNameJa,
-      backgroundColor: COLORS[cityNameEn],
-      borderColor: COLORS[cityNameEn],
-      data: getColumn(cityNameEn + "-" + dtypeEn), // e.g. sendai-avg_temp
-      fill: false,
-    });
+    for (let [cityNameEn, cityNameJa] of Object.entries(CITY_NAMES)) {
+      datasetsSingle.push({
+        label: cityNameJa,
+        backgroundColor: COLORS[cityNameEn],
+        borderColor: COLORS[cityNameEn],
+        data: getColumn(cityNameEn + "-" + dtypeEn, start, end), // e.g. sendai-avg_temp
+        fill: false,
+      });
+    }
+    datasetsAll[dtypeEn] = {
+      label: dtypeJa,
+      datasets: datasetsSingle,
+    };
   }
-  datasetsAll.push({
-    label: dtypeJa,
-    datasets: datasetsSingle,
-  });
-}
 
-var config = {
-  type: "line",
-  data: {
-    labels: getColumn("month"),
-    datasets: datasetsAll[0].datasets,
-  },
-  options: {
-    responsive: true,
-    title: {
-      display: true,
-      text: "七都市の" + datasetsAll[0].label,
+  return datasetsAll;
+};
+
+const render = (dtype = "winter_days", start = "2000-4", end = "2010-3") => {
+  // Get HTML DOM
+  var ctx = document.getElementById("chartSummer").getContext("2d");
+  ctx.canvas.width = 1500;
+  ctx.canvas.height = 600;
+
+  const datasetsAll = getDatasetsAll(start, end);
+  if (!Object.keys(datasetsAll).includes(dtype)) {
+    console.error("Error: Invalid data type passed to rendering function!");
+    return;
+  }
+
+  var config = {
+    type: "line",
+    data: {
+      labels: getColumn("month", start, end),
+      datasets: datasetsAll[dtype].datasets,
     },
-    tooltips: {
-      mode: "index",
-      intersect: false,
-    },
-    hover: {
-      mode: "nearest",
-      intersect: true,
-    },
-    scales: {
-      xAxes: [
-        {
-          display: true,
-          scaleLabel: {
+    options: {
+      responsive: true,
+      title: {
+        display: true,
+        text: "七都市の" + datasetsAll[dtype].label,
+      },
+      tooltips: {
+        mode: "index",
+        intersect: false,
+      },
+      hover: {
+        mode: "nearest",
+        intersect: true,
+      },
+      scales: {
+        xAxes: [
+          {
             display: true,
-            labelString: "年月",
+            scaleLabel: {
+              display: true,
+              labelString: "年月",
+            },
           },
-        },
-      ],
-      yAxes: [
-        {
-          display: true,
-          scaleLabel: {
+        ],
+        yAxes: [
+          {
             display: true,
-            labelString: datasetsAll[0].label,
+            scaleLabel: {
+              display: true,
+              labelString: datasetsAll[dtype].label,
+            },
           },
-        },
-      ],
+        ],
+      },
     },
-  },
+  };
+
+  new Chart(ctx, config);
 };
 
 window.onload = function () {
-  new Chart(ctx, config);
+  render();
 };
