@@ -8,6 +8,10 @@ stats.columns.forEach((column, index) => {
   fields[column] = index;
 });
 
+const ALL_MONTHS = stats.data.map((row) => {
+  return row[fields.month];
+});
+
 const COLORS = {
   sapporo: "rgba(148, 0, 255, 1)",
   sendai: "rgba(0, 0, 255, 1)",
@@ -92,9 +96,9 @@ const getDatasetsAll = (start, end) => {
   return datasetsAll;
 };
 
-const render = (dtype = "winter_days", start = "2000-4", end = "2010-3") => {
+const render = (dtype = "winter_days", start = "1990-4", end = "2020-3") => {
   // Get HTML DOM
-  var ctx = document.getElementById("chartSummer").getContext("2d");
+  var ctx = document.getElementById("chartArea").getContext("2d");
   ctx.canvas.width = 1500;
   ctx.canvas.height = 600;
 
