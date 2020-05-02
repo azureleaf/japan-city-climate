@@ -21,17 +21,13 @@
     href="https://fonts.googleapis.com/css?family=Noto+Sans+JP&display=swap&subset=japanese"
     rel="stylesheet"
   />
-  <link
-    href="https://fonts.googleapis.com/css?family=Noto+Serif+JP:600&display=swap&subset=japanese"
-    rel="stylesheet"
-  />
   <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <script src="./js/merged.js"></script>
   <title>日本大都市気候比較</title>
 </head>
 <body>
-  <div id="app" style="font-family: 'Noto Serif JP', serif;">
+  <div id="app">
     <v-app>
       <v-content>
         <v-container>
@@ -46,22 +42,22 @@
                 <v-col>
                   <v-select
                     :items="dataTypes"
-                    v-model="dataType"
+                    v-model="typeSelected"
                     label="指標の種類"
                     @change="rerender()"
                   ></v-select>
                 </v-col>
               </v-row>
-              <canvas id="chartArea"></canvas>
+              <canvas id="chartArea" width="800" height="400"></canvas>
             </v-card-text>
           </v-card>
         </v-container>
       </v-content>
     </v-app>
+
   </div>
   <!-- <script src="./js/vue.min.js"></script> -->
   <script src="./js/Chart.min.js"></script>
-  <script src="./js/moment.min.js"></script>
   <script src="./js/vis-chart.js"></script>
   <script>
     new Vue({
@@ -70,23 +66,23 @@
       data() {
         return {
           dataTypes: Object.values(DTYPES),
-          dataType: "夏日", // Set initial type here
+          typeSelected: "夏日", // Set initial type here
         };
       },
       computed: {
-        dataTypeEn() {
-          const index = Object.values(DTYPES).indexOf(this.dataType);
+        typeSelectedEn() {
+          const index = Object.values(DTYPES).indexOf(this.typeSelected);
           return Object.keys(DTYPES)[index];
         },
       },
       methods: {
         rerender() {
-          console.log(this.dataType)
-          render(this.dataTypeEn);
+          console.log(this.typeSelectedEn);
+          render(this.typeSelectedEn);
         },
       },
       mounted() {
-        render(this.dataTypeEn);
+        render(this.typeSelectedEn);
       },
     });
   </script>

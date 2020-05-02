@@ -101,9 +101,8 @@ const getDatasetsAll = (start, end) => {
 const render = (dtype = "winter_days", start = "2015-4", end = "2020-3") => {
   // Get HTML DOM
   var ctx = document.getElementById("chartArea").getContext("2d");
-  ctx.canvas.width = 1000;
-  ctx.canvas.height = 600;
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.canvas.width = 800;
+  ctx.canvas.height = 400;
 
   const datasetsAll = getDatasetsAll(start, end);
   if (!Object.keys(datasetsAll).includes(dtype)) {
@@ -111,61 +110,65 @@ const render = (dtype = "winter_days", start = "2015-4", end = "2020-3") => {
     return;
   }
 
-  var config = {
-    type: "line",
-    data: {
-      labels: getColumn("month", start, end),
-      datasets: datasetsAll[dtype].datasets,
+  var chartOptions = {
+    responsive: true,
+    title: {
+      display: true,
+      text: "七都市の" + datasetsAll[dtype].label,
     },
-    options: {
-      responsive: true,
-      title: {
-        display: true,
-        text: "七都市の" + datasetsAll[dtype].label,
-      },
-      tooltips: {
-        mode: "index",
-        intersect: false,
-      },
-      hover: {
-        mode: "nearest",
-        intersect: true,
-      },
-      scales: {
-        xAxes: [
-          {
+    tooltips: {
+      mode: "index",
+      intersect: false,
+    },
+    hover: {
+      mode: "nearest",
+      intersect: true,
+    },
+    scales: {
+      xAxes: [
+        {
+          display: true,
+          scaleLabel: {
             display: true,
-            scaleLabel: {
-              display: true,
-              labelString: "年-月",
-            },
+            labelString: "年-月",
           },
-        ],
-        yAxes: [
-          {
-            display: true,
-            scaleLabel: {
-              display: true,
-              labelString: datasetsAll[dtype].label,
-            },
-          },
-        ],
-      },
-      elements: {
-        line: {
-          tension: 0, // Suppress curved line
         },
+      ],
+      yAxes: [
+        {
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: datasetsAll[dtype].label,
+          },
+        },
+      ],
+    },
+    elements: {
+      line: {
+        tension: 0, // Suppress curved line
       },
     },
   };
 
-  if (chart == undefined) {
-    console.log("not defined!");
-    chart = new Chart(ctx, config);
-  } else {
-    console.log("defined!");
-    chart.update();
+  var chartData = {
+    labels: getColumn("month", start, end),
+    datasets: datasetsAll[dtype].datasets,
+  };
+
+  // Totally remove the current chart
+  // Alternatively, you can use chart.update()
+  // .update() is better for app performance,
+  // however, I failed to re-render chart correcly with it
+  if (chart != undefined) {
+    chart.destroy();
   }
+
+  chart = new Chart(ctx, {
+    type: "line",
+    data: chartData,
+    options: chartOptions,
+  });
 };
 
 // window.onload = function () {
