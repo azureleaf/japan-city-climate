@@ -144,6 +144,9 @@ const render = (dtype = "winter_days", start = "2015-4", end = "2020-3") => {
             display: true,
             labelString: datasetsAll[dtype].label,
           },
+          ticks: {
+            stepSize: 1,
+          },
         },
       ],
     },
