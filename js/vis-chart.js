@@ -130,7 +130,7 @@ const render = (dtype = "winter_days", start = "2000-4", end = "2010-3") => {
             display: true,
             scaleLabel: {
               display: true,
-              labelString: "年月",
+              labelString: "年-月",
             },
           },
         ],
@@ -143,6 +143,11 @@ const render = (dtype = "winter_days", start = "2000-4", end = "2010-3") => {
             },
           },
         ],
+      },
+      elements: {
+        line: {
+          tension: 0, // Suppress curved line
+        },
       },
     },
   };
