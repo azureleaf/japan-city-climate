@@ -2,6 +2,7 @@
 .vscode
 merged.csv
 merged.json
+daily_temp_humidity
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
