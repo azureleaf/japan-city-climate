@@ -5,10 +5,10 @@
     href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css"
     rel="stylesheet"
   />
-  <!-- <link
+  <link
     href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
     rel="stylesheet"
-  /> -->
+  />
   <link
     href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
     rel="stylesheet"
@@ -25,22 +25,69 @@
     href="https://fonts.googleapis.com/css?family=Noto+Serif+JP:600&display=swap&subset=japanese"
     rel="stylesheet"
   />
-  <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script> -->
-  <!-- <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script> -->
-  <!-- <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script> -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   <script src="./js/merged.js"></script>
   <title>日本大都市気候比較</title>
 </head>
 <body>
   <div id="app" style="font-family: 'Noto Serif JP', serif;">
-    <h1 style="font-size: 150%;">東名阪札仙広福の気候比較</h1>
+    <v-app>
+      <v-content>
+        <v-container>
+          <v-app-bar color="grey darken-4" app dark>
+            <v-toolbar-title class="title"
+              >東名阪札仙広福の気候比較</v-toolbar-title
+            >
+          </v-app-bar>
+          <v-card>
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <v-select
+                    :items="dataTypes"
+                    v-model="dataType"
+                    label="指標の種類"
+                    @change="rerender()"
+                  ></v-select>
+                </v-col>
+              </v-row>
+              <canvas id="chartArea"></canvas>
+            </v-card-text>
+          </v-card>
+        </v-container>
+      </v-content>
+    </v-app>
   </div>
-  <div>
-    <canvas id="chartSummer"></canvas>
-  </div>
-  <script src="./js/vue.min.js"></script>
+  <!-- <script src="./js/vue.min.js"></script> -->
   <script src="./js/Chart.min.js"></script>
   <script src="./js/moment.min.js"></script>
   <script src="./js/vis-chart.js"></script>
+  <script>
+    new Vue({
+      el: "#app",
+      vuetify: new Vuetify(),
+      data() {
+        return {
+          dataTypes: Object.values(DTYPES),
+          dataType: "夏日", // Set initial type here
+        };
+      },
+      computed: {
+        dataTypeEn() {
+          const index = Object.values(DTYPES).indexOf(this.dataType);
+          return Object.keys(DTYPES)[index];
+        },
+      },
+      methods: {
+        rerender() {
+          console.log(this.dataType)
+          render(this.dataTypeEn);
+        },
+      },
+      mounted() {
+        render(this.dataTypeEn);
+      },
+    });
+  </script>
 </body>

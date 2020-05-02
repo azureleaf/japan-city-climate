@@ -8,6 +8,8 @@ stats.columns.forEach((column, index) => {
   fields[column] = index;
 });
 
+let chart;
+
 const ALL_MONTHS = stats.data.map((row) => {
   return row[fields.month];
 });
@@ -96,11 +98,12 @@ const getDatasetsAll = (start, end) => {
   return datasetsAll;
 };
 
-const render = (dtype = "winter_days", start = "1990-4", end = "2020-3") => {
+const render = (dtype = "winter_days", start = "2015-4", end = "2020-3") => {
   // Get HTML DOM
   var ctx = document.getElementById("chartArea").getContext("2d");
-  ctx.canvas.width = 1500;
+  ctx.canvas.width = 1000;
   ctx.canvas.height = 600;
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
   const datasetsAll = getDatasetsAll(start, end);
   if (!Object.keys(datasetsAll).includes(dtype)) {
@@ -156,9 +159,15 @@ const render = (dtype = "winter_days", start = "1990-4", end = "2020-3") => {
     },
   };
 
-  new Chart(ctx, config);
+  if (chart == undefined) {
+    console.log("not defined!");
+    chart = new Chart(ctx, config);
+  } else {
+    console.log("defined!");
+    chart.update();
+  }
 };
 
-window.onload = function () {
-  render();
-};
+// window.onload = function () {
+//   render();
+// };
