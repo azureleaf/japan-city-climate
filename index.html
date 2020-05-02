@@ -31,7 +31,7 @@
     <v-app>
       <v-content>
         <v-container>
-          <v-app-bar color="grey darken-4" app dark>
+          <v-app-bar color="red darken-4" app dark>
             <v-toolbar-title class="title"
               >東名阪札仙広福の気候比較</v-toolbar-title
             >
@@ -43,12 +43,28 @@
                   <v-select
                     :items="dataTypes"
                     v-model="typeSelected"
-                    label="指標の種類"
+                    label="気候指標の種類"
+                    @change="rerender()"
+                  ></v-select>
+                </v-col>
+                <v-col>
+                  <v-select
+                    :items="months"
+                    v-model="monthStart"
+                    label="表示期間の最初"
+                    @change="rerender()"
+                  ></v-select>
+                </v-col>
+                <v-col>
+                  <v-select
+                    :items="months"
+                    v-model="monthEnd"
+                    label="表示期間の最後"
                     @change="rerender()"
                   ></v-select>
                 </v-col>
               </v-row>
-              <canvas id="chartArea" width="800" height="400"></canvas>
+              <canvas id="chartArea"></canvas>
             </v-card-text>
           </v-card>
         </v-container>
@@ -66,6 +82,9 @@
       data() {
         return {
           dataTypes: Object.values(DTYPES),
+          months: ALL_MONTHS,
+          monthStart: "2015-4", 
+          monthEnd: "2020-3",
           typeSelected: "夏日", // Set initial type here
         };
       },
@@ -78,11 +97,11 @@
       methods: {
         rerender() {
           console.log(this.typeSelectedEn);
-          render(this.typeSelectedEn);
+          render(this.typeSelectedEn, this.monthStart, this.monthEnd);
         },
       },
       mounted() {
-        render(this.typeSelectedEn);
+        render(this.typeSelectedEn, this.monthStart, this.monthEnd);
       },
     });
   </script>
